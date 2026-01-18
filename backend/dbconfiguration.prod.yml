@@ -1,0 +1,4 @@
+ip: "films-db-prod"
+dbname: "films"
+user: "films_user"
+pass: "films_pass"

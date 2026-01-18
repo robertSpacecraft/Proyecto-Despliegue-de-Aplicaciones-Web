@@ -1,0 +1,16 @@
+# Logs
+**/logs/prod/*.log
+**/logs/dev/*.log
+*.log
+
+# Docker
+.docker/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/

@@ -1,0 +1,30 @@
+services:
+  db:
+    image: mysql:8.0.35-debian
+    container_name: films-db-prod
+    env_file:
+      - .env
+    volumes:
+      - films_db_prod_data:/var/lib/mysql
+      - ./docker/mysql/prod-init:/docker-entrypoint-initdb.d:ro
+    restart: always
+
+  web:
+    image: backend-web-prod
+    container_name: backend-web-prod
+    build:
+      context: .
+      dockerfile: docker/prod/Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "8080:80"
+    volumes:
+      - ./api:/var/www/html
+      - ./dbconfiguration.prod.yml:/var/www/dbconfiguration.yml:ro
+      - ./virtualhosts/prod/000-default.conf:/etc/apache2/sites-available/000-default.conf:ro
+      - ./logs/prod:/var/www/html/logs
+    restart: always
+
+volumes:
+  films_db_prod_data:

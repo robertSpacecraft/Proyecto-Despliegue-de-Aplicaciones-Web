@@ -1,0 +1,30 @@
+services:
+  db:
+    image: mysql:8.0.35-debian
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: films
+    volumes:
+      - films_db_dev_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/dev/Dockerfile
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: films
+      DB_USER: root
+      DB_PASS: root
+    volumes:
+      - ./api:/var/www/html:ro
+      - ./utils:/var/www/utils:ro
+      - ./dbconfiguration.dev.yml:/var/www/dbconfiguration.yml:ro
+    ports:
+      - "8081:80"
+
+volumes:
+  films_db_dev_data:

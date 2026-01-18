@@ -1,0 +1,4 @@
+ip: "db"
+dbname: "films"
+user: "root"
+pass: "root"

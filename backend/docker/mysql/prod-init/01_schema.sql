@@ -1,0 +1,12 @@
+CREATE DATABASE IF NOT EXISTS films;
+USE films;
+
+DROP TABLE IF EXISTS film;
+CREATE TABLE film (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  director VARCHAR(255) NOT NULL,
+  classification VARCHAR(50) NOT NULL,
+  img TEXT,
+  plot TEXT
+);
