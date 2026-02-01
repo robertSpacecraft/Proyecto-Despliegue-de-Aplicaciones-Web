@@ -1,2 +1,2 @@
 // Rutas de las llamadas HTTP (entorno de producción)
-let apiUrl = "http://localhost:8080";
+let apiUrl = "http://robert-amor.mooo.com";

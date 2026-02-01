@@ -1,12 +1,19 @@
 <?php
 
-//Guardo los datos de conexión de la base de datos en un fichero YML
 function getDBConfig() {
+    if (getenv("DB_HOST")) {
+        $cad = sprintf("mysql:dbname=%s;host=%s;charset=UTF8", getenv("DB_NAME"), getenv("DB_HOST"));
+        return array(
+            "cad" => $cad,
+            "user" => getenv("DB_USER"),
+            "pass" => getenv("DB_PASS")
+        );
+    }
+
     $dbFileConfig=dirname(__FILE__)."/../../dbconfiguration.yml";
+    $configYML = yaml_parse_file($dbFileConfig);
 
-    $configYML = yaml_parse_file($dbFileConfig);//necesita la extensión php-yaml
-
-	$cad = sprintf("mysql:dbname=%s;host=%s;charset=UTF8", $configYML["dbname"], $configYML["ip"]);
+    $cad = sprintf("mysql:dbname=%s;host=%s;charset=UTF8", $configYML["dbname"], $configYML["ip"]);
 
     $result = array(
         "cad" => $cad,
@@ -14,7 +21,7 @@ function getDBConfig() {
         "pass" => $configYML["pass"]
     );
 
-	return $result;
+    return $result;
 }
 
 function getDBConnection() {
@@ -111,7 +118,7 @@ function addFilmDB($data) {
 
             return $sqlPrepared->execute($params);
 
-            return $sqlPrepared->rowCount();// check affected rows using rowCount
+            return $sqlPrepared->rowCount();
 
         } else
             return $bd;
@@ -145,7 +152,7 @@ function updateFilmDB($data) {
 
             return $sqlPrepared->execute($params);
 
-            return $sqlPrepared->rowCount();// check affected rows using rowCount
+            return $sqlPrepared->rowCount();
 
         } else
             return $bd;
@@ -172,7 +179,7 @@ function deleteFilmDB($id) {
 
             return $sqlPrepared->execute($params);
 
-            return $sqlPrepared->rowCount();// check affected rows using rowCount
+            return $sqlPrepared->rowCount();
 
         } else
             return $bd;

@@ -16,10 +16,10 @@ RUN a2enmod rewrite headers
 
 WORKDIR /var/www/html
 
-# Copio el código del backend (imagen inmutable)
 COPY api/ /var/www/html/
 COPY utils/ /var/www/utils/
-COPY dbconfiguration.yml /var/www/dbconfiguration.yml
+
+COPY dbconfiguration.prod.yml /var/www/dbconfiguration.yml
 
 # VirtualHost de producción
 COPY docker/prod/000-default.conf /etc/apache2/sites-available/000-default.conf

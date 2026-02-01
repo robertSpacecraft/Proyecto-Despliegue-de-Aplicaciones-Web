@@ -2,11 +2,12 @@ services:
   db:
     image: mysql:8.0.35-debian
     container_name: films-db-prod
+
     env_file:
       - .env
     volumes:
       - films_db_prod_data:/var/lib/mysql
-      - ./docker/mysql/prod-init:/docker-entrypoint-initdb.d:ro
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
     restart: always
 
   web:
@@ -17,11 +18,21 @@ services:
       dockerfile: docker/prod/Dockerfile
     depends_on:
       - db
+
+    env_file:
+      - .env
+
+    environment:
+      DB_HOST: db
+      DB_NAME: ${MYSQL_DATABASE}
+      DB_USER: ${MYSQL_USER}
+      DB_PASS: ${MYSQL_PASSWORD}
+
     ports:
       - "8080:80"
     volumes:
       - ./api:/var/www/html
-      - ./dbconfiguration.prod.yml:/var/www/dbconfiguration.yml:ro
+      - ./utils:/var/www/utils
       - ./virtualhosts/prod/000-default.conf:/etc/apache2/sites-available/000-default.conf:ro
       - ./logs/prod:/var/www/html/logs
     restart: always
