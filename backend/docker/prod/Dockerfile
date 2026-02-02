@@ -16,18 +16,18 @@ RUN a2enmod rewrite headers
 
 WORKDIR /var/www/html
 
-# Borramos el index por defecto ANTES de copiar tus archivos
+# Borro el index de Debian
 RUN rm -f /var/www/html/index.html
 
-# Copiamos el backend y el frontend
-COPY api/ /var/www/html/
-COPY utils/ /var/www/utils/
+COPY backend/api/ /var/www/html/
+COPY backend/utils/ /var/www/utils/
 COPY frontend/public_html/ /var/www/html/
 
-COPY dbconfiguration.prod.yml /var/www/dbconfiguration.yml
+# Ruta para el archivo de configuración
+COPY backend/dbconfiguration.prod.yml /var/www/dbconfiguration.yml
 
 # VirtualHost de producción
-COPY docker/prod/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY backend/docker/prod/000-default.conf /etc/apache2/sites-available/000-default.conf
 RUN a2ensite 000-default.conf
 
 EXPOSE 80
