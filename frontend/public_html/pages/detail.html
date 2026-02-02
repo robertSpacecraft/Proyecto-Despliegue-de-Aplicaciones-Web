@@ -1,47 +1,40 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="es">
 <head>
-    <base href="/frontend/public_html/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Creo este archivo ya que voy a necesitar cargar estilos y librerías en todas las páginas -->
-
-    <!-- Boostrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
-        crossorigin="anonymous"></script>
-
-    <!-- Estilos globales -->
-    <link rel="stylesheet" type="text/css" href="/css/global.css" />
-
-    <!-- Cargo los estilos de la página de login -->
-    <link rel="stylesheet" type="text/css" href="/css/detail.css" />
-
-    <!-- Cargo el Script Javascript que gestiona la vista -->
-    <script type="module" src="js/detail.js"></script>
-
     <title>Detalle de la película</title>
-</head>
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/global.css" />
+    <link rel="stylesheet" type="text/css" href="../css/detail.css" />
+
+    <script type="module" src="js/detail.js"></script>
+</head>
 <body>
 
-    <div class="detail-container">
-        <div class="card card-detail" style="width: 18rem;">
-            <img id="img" src="" class="card-img-top" alt="" referrerpolicy="no-referrer">
-            <div class="card-body">
-                <h5 id="name" class="card-title"></h5>
-                <p id="plot" class="card-text"></p>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card card-detail shadow">
+                    <img id="img" src="" class="card-img-top" alt="Portada de la película" referrerpolicy="no-referrer">
+                    <div class="card-body">
+                        <h2 id="name" class="card-title h4"></h2>
+                        <hr>
+                        <p><strong>Director:</strong> <span id="director"></span></p>
+                        <p><strong>Clasificación:</strong> <span id="classification"></span></p>
+                        <p class="card-text"><strong>Trama:</strong></p>
+                        <p id="plot"></p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="../index.html" class="btn btn-secondary">Volver al listado</a>
+                    </div>
+                </div>
             </div>
-            <ul class="list-group list-group-flush">
-                <li id="director" class="list-group-item"></li>
-                <li id="classification" class="list-group-item"></li>
-            </ul>
         </div>
     </div>
 
 </body>
-
 </html>
