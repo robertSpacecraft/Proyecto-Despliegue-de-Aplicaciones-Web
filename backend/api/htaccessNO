@@ -1,4 +1,0 @@
-# Respuesta rápida a preflight
-RewriteEngine On
-RewriteCond %{REQUEST_METHOD} OPTIONS
-RewriteRule ^(.*)$ $1 [R=200,L]

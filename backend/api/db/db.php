@@ -1,17 +1,12 @@
 <?php
-
 function getDBConfig() {
     if (getenv("DB_HOST")) {
-        return array(
+        return [
             "cad" => sprintf("mysql:dbname=%s;host=%s;port=%s;charset=UTF8", 
-                getenv("DB_NAME"), 
-                getenv("DB_HOST"), 
-                getenv("DB_PORT") ?: "3306"
-            ),
+                getenv("DB_NAME"), getenv("DB_HOST"), getenv("DB_PORT")),
             "user" => getenv("DB_USER"),
-            "pass" => getenv("DB_PASS"),
-            "ssl"  => true
-        );
+            "pass" => getenv("DB_PASS")
+        ];
     }
     return null;
 }
@@ -21,18 +16,17 @@ function getDBConnection() {
         $res = getDBConfig();
         if (!$res) return null;
 
-        $options = array(
+        // Intentamos conexión estándar; Aiven suele aceptar SSL implícito 
+        // si el cliente lo soporta sin configurar flags adicionales.
+        $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            // Necesario para Aiven: Conecta por SSL pero no busca el archivo CA local
             PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-        );
+        ];
 
-        $connString = $res["cad"];
-        
-        return new PDO($connString, $res["user"], $res["pass"], $options);
+        return new PDO($res["cad"], $res["user"], $res["pass"], $options);
     } catch(PDOException $e) {
-        error_log("FALLO DE CONEXIÓN DB: " . $e->getMessage());
+        error_log("FALLO CRÍTICO DB: " . $e->getMessage());
         return null;
     }
 }
