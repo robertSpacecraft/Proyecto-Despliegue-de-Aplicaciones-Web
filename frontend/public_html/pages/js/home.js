@@ -1,113 +1,83 @@
-
-//Mostar / Ocultar el formulario de nueva película
-function showHideAddForm() {
-    var tag = document.getElementById("new-form");
-    if (tag.style.display === "none") 
-        tag.style.display = "block";
-    else 
-        tag.style.display = "none";
-}
-
-//------- Gestión de la tabla de películas -------
-function loadRow(film, tableBody) {
-    let row='<tr>';
-
-    row+='<tr>';
-    row+='<th scope="row">'+film.id+'</th>';
-    row+='<td>'+film.name+'</td>';
-    row+='<td>'+film.director+'</td>';
-    row+='<td>'+film.classification+'</td>';
-
-    let detailBtn='<td>';
-    detailBtn+='<a href="/pages/detail.html?id='+film.id+'" role="button" class="btn btn-primary btn-sm">Ver detalle</a>';
-    detailBtn+='</td>';
-
-    row+=detailBtn;
-    row+='</tr>';
-
-    tableBody.innerHTML+=row;
-}
-
-function loadDataInTable(filmsJSON, tableBody) {
-    //Si no hay películas muestro un mensaje, si no, las cargo en la tabla
-    if(filmsJSON.length<=0) {
-        document.getElementById("no-films-message").style.display="block";
-    } else {
-        for(let i in filmsJSON) {
-            let film = filmsJSON[i];
-            loadRow(film, tableBody);
-        }
-    }
-}
+import apiUrl from '../../config/urls.js';
 
 function loadFilms() {
-
     let tableBody = document.getElementById("tbody-container");
-    tableBody.innerHTML="";
+    if (!tableBody) return;
+    tableBody.innerHTML = "";
 
-    fetch(apiUrl+"/films/get_films.php", {
+    fetch(apiUrl + "/films/get_films.php", {
         method: 'GET'
     })
     .then((response) => {
-        if(response.status==500)
-            alert("Se ha producido un error, vuélvelo a intentar, si el problema persiste contacte con el administrador");
+        if (response.status == 500)
+            alert("Se ha producido un error de servidor");
         else {
             response.json().then((data) => {
-                if(data.status == "OK") {
+                if (data.status == "OK") {
                     loadDataInTable(data.data, tableBody);
-                } else
-                    alert("Se ha producido un error, vuélvelo a intentar, si el problema persiste contacte con el administrador");
+                }
             });
         }
-    })
-    
+    });
 }
-//-------------------------------------
 
+function loadDataInTable(filmsJSON, tableBody) {
+    if (filmsJSON.length <= 0) {
+        document.getElementById("no-films-message").style.display = "block";
+    } else {
+        document.getElementById("no-films-message").style.display = "none";
+        filmsJSON.forEach(film => loadRow(film, tableBody));
+    }
+}
+
+function loadRow(film, tableBody) {
+    let row = `<tr>
+        <th scope="row">${film.id}</th>
+        <td>${film.name}</td>
+        <td>${film.director}</td>
+        <td>${film.classification}</td>
+        <td>
+            <a href="pages/detail.html?id=${film.id}" role="button" class="btn btn-primary btn-sm">Ver detalle</a>
+        </td>
+    </tr>`;
+    tableBody.innerHTML += row;
+}
+
+function showHideAddForm() {
+    const tag = document.getElementById("new-form");
+    tag.style.display = (tag.style.display === "none") ? "block" : "none";
+}
 
 function addNewFilm() {
-    //Monto los parámetros de la llamada
     let jsonData = {
         name: document.getElementById("name").value,
         director: document.getElementById("director").value,
         classification: document.getElementById("classification").value,
         img: document.getElementById("img").value,
         plot: document.getElementById("plot").value
-    }
+    };
 
-    fetch(apiUrl+"/films/add_film.php", {
+    fetch(apiUrl + "/films/add_film.php", {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(jsonData)
     })
     .then((response) => {
-        if(response.status==500)
-            alert("Se ha producido un error, vuélvelo a intentar, si el problema persiste contacte con el administrador");
-        else {
-            response.json().then((data) => {
-                if(data.status == "OK") {
-                    loadFilms();
-        
-                    //Limpio el formulario
-                    showHideAddForm();
-                    document.getElementById("form-new-tag").reset(); 
-        
-                    alert("Película añadida correctamente");
-                } else
-                    alert("Se ha producido un error, vuélvelo a intentar, si el problema persiste contacte con el administrador")
-            });
-        }
+        response.json().then((data) => {
+            if (data.status == "OK") {
+                loadFilms();
+                showHideAddForm();
+                document.getElementById("form-new-tag").reset();
+                alert("Película añadida");
+            }
+        });
     });
-    
-	return false;
+    return false;
 }
 
+document.addEventListener("DOMContentLoaded", loadFilms);
 
-document.addEventListener("DOMContentLoaded", function(event) { 
-    //Cuando carga la página, llamo al método que obtiene las películas y pinta los resultados
-    loadFilms();
-});
-
-
+// Exponer funciones al objeto window para que funcionen los onclick del HTML
+window.loadFilms = loadFilms;
+window.showHideAddForm = showHideAddForm;
+window.addNewFilm = addNewFilm;
