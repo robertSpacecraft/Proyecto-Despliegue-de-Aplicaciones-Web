@@ -2,26 +2,21 @@
 require_once __DIR__ . "/../../utils/utils.php";
 require_once __DIR__ . "/../db/db.php";
 
+// Cabecera para asegurar que la respuesta sea JSON
+header('Content-Type: application/json');
+
 try {
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
-        // Validación del parámetro ID
-        if (empty($_GET["id"])) {
-            echo getResponse(400, "KO_MISSING", "Falta el atributo id");
-            exit;
-        }
-
-        // Llamada a la base de datos (función en singular)
-        $resp = getFilmDB($_GET["id"]);
+        // Llamamos a la función que trae TODAS las películas (en plural)
+        $resp = getFilmsDB();
 
         if (is_null($resp)) {
-            echo getResponse(500, "KO", "Error interno de base de datos");
+            // Si la conexión a la DB falla, getFilmsDB devuelve null
+            echo getResponse(500, "KO", "Error interno de base de datos - No se pudo conectar");
         } else {
-            if (count($resp) > 0) {
-                echo getResponse(200, "OK", "Película obtenida correctamente", $resp[0]);
-            } else {
-                echo getResponse(404, "KO_NOT_FOUND", "Película no encontrada");
-            }
+            // Aunque la lista esté vacía (count == 0), es una respuesta válida (200 OK)
+            echo getResponse(200, "OK", "Películas obtenidas correctamente", $resp);
         }
 
     } else {
@@ -29,5 +24,7 @@ try {
     }
 
 } catch (Exception $e) {
+    // Logueamos el error real en Render para depurar
+    error_log("Error en get_films.php: " . $e->getMessage());
     echo getResponse(500, "KO", "Error interno del servidor");
 }

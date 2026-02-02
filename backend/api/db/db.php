@@ -2,13 +2,16 @@
 
 function getDBConfig() {
     if (getenv("DB_HOST")) {
-        return [
+        return array(
             "cad" => sprintf("mysql:dbname=%s;host=%s;port=%s;charset=UTF8", 
-                getenv("DB_NAME"), getenv("DB_HOST"), getenv("DB_PORT") ?: "3306"),
+                getenv("DB_NAME"), 
+                getenv("DB_HOST"), 
+                getenv("DB_PORT") ?: "3306"
+            ),
             "user" => getenv("DB_USER"),
             "pass" => getenv("DB_PASS"),
             "ssl"  => true
-        ];
+        );
     }
     return null;
 }
@@ -18,30 +21,23 @@ function getDBConnection() {
         $res = getDBConfig();
         if (!$res) return null;
 
-        $options = [
+        $options = array(
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            // Aiven requiere SSL. Esta opción permite conectar aunque no validemos el certificado local
+            // Necesario para Aiven: Conecta por SSL pero no busca el archivo CA local
             PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-        ];
+        );
 
         $connString = $res["cad"];
-        if ($res["ssl"]) {
-            // Forzamos el modo SSL en la cadena de conexión
-            $connString .= ";sslmode=required";
-        }
-
+        
         return new PDO($connString, $res["user"], $res["pass"], $options);
     } catch(PDOException $e) {
-        // ESTO ES CLAVE: Escribe el error real en los Logs de Render
         error_log("FALLO DE CONEXIÓN DB: " . $e->getMessage());
         return null;
     }
 }
 
-// ... resto de funciones (getFilmsDB, etc.)
-
-/* ------------ PELÍCULAS --------------- */
+/* ------------ FUNCIONES DB --------------- */
 
 function getFilmsDB() {
     try {
