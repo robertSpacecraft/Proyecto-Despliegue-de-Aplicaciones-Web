@@ -1,37 +1,14 @@
 <?php
-
 function getDBConfig() {
-    // 1. Prioridad: Variables de entorno (Producción en Render/Aiven)
     if (getenv("DB_HOST")) {
-        return array(
+        return [
             "cad" => sprintf("mysql:dbname=%s;host=%s;port=%s;charset=UTF8", 
-                getenv("DB_NAME"), 
-                getenv("DB_HOST"), 
-                getenv("DB_PORT") ?: "3306"
-            ),
+                getenv("DB_NAME"), getenv("DB_HOST"), getenv("DB_PORT") ?: "3306"),
             "user" => getenv("DB_USER"),
             "pass" => getenv("DB_PASS"),
             "ssl"  => true
-        );
+        ];
     }
-
-    // 2. Fallback: Configuración local (YAML)
-    // Usamos una ruta absoluta común en contenedores o relativa al archivo
-    $dbFileConfig = dirname(__FILE__) . "/../../dbconfiguration.yml";
-    
-    if (file_exists($dbFileConfig)) {
-        // Verificamos que la función exista para evitar Error 500 si no está instalada la extensión
-        if (function_exists('yaml_parse_file')) {
-            $configYML = yaml_parse_file($dbFileConfig);
-            return array(
-                "cad" => sprintf("mysql:dbname=%s;host=%s;charset=UTF8", $configYML["dbname"], $configYML["ip"]),
-                "user" => $configYML["user"],
-                "pass" => $configYML["pass"],
-                "ssl"  => false
-            );
-        }
-    }
-    
     return null;
 }
 
@@ -40,24 +17,26 @@ function getDBConnection() {
         $res = getDBConfig();
         if (!$res) return null;
 
+        // Opciones críticas para conexiones con Aiven/Cloud
         $options = array(
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            // Necesario para Aiven: no verificar certificado CA si no tenemos el archivo .pem
+            // Importante: Permite la conexión SSL sin validar el certificado CA local
             PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
         );
 
         $connString = $res["cad"];
         
-        // Si la configuración indica SSL (Aiven), añadimos el flag a la cadena
-        if ($res["ssl"]) {
-            $connString .= ";sslmode=verify-ca";
+        // Render utiliza variables de entorno, activamos el modo SSL
+        if (getenv("DB_HOST")) {
+            // Añadimos explícitamente el requerimiento de SSL a la cadena de conexión
+            $connString .= ";sslmode=required";
         }
 
         return new PDO($connString, $res["user"], $res["pass"], $options);
     } catch(PDOException $e) {
-        // En producción, es mejor no mostrar el error real por seguridad, 
-        // pero puedes loguearlo aquí si fuera necesario: error_log($e->getMessage());
+        // Loguear el error exacto para verlo en los Logs de Render
+        error_log("Error de Conexión PDO: " . $e->getMessage());
         return null;
     }
 }

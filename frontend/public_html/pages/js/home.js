@@ -1,5 +1,6 @@
 import apiUrl from '../../config/urls.js';
 
+// Usamos funciones normales para asegurar que el hoisting o la asignación no fallen
 export function loadFilms() {
     let tableBody = document.getElementById("tbody-container");
     if (!tableBody) return;
@@ -25,14 +26,39 @@ export function loadFilms() {
 
 export function showHideAddForm() {
     const tag = document.getElementById("new-form");
-    tag.style.display = (tag.style.display === "none") ? "block" : "none";
+    if(tag) tag.style.display = (tag.style.display === "none") ? "block" : "none";
 }
 
-// ... Resto de funciones (addNewFilm) usando la misma lógica ...
+export function addNewFilm() {
+    let jsonData = {
+        name: document.getElementById("name").value,
+        director: document.getElementById("director").value,
+        classification: document.getElementById("classification").value,
+        img: document.getElementById("img").value,
+        plot: document.getElementById("plot").value
+    };
 
+    fetch(apiUrl + "/films/add_film.php", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "OK") {
+            loadFilms();
+            showHideAddForm();
+            document.getElementById("form-new-tag").reset();
+            alert("Película añadida");
+        }
+    });
+    return false;
+}
+
+// Event Listeners e inicialización
 document.addEventListener("DOMContentLoaded", loadFilms);
 
-// Exponer a window para los botones onclick del HTML
+// EXPOSICIÓN GLOBAL: Esto es lo que permite que el HTML vea las funciones
 window.loadFilms = loadFilms;
 window.showHideAddForm = showHideAddForm;
 window.addNewFilm = addNewFilm;
