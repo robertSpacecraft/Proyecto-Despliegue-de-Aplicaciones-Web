@@ -40,18 +40,16 @@ function getDBConnection() {
         $options = array(
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_PERSISTENT => true // Mantiene la conexión abierta para mayor velocidad
+            PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
         );
 
-        // Si es Aiven, forzamos el modo SSL que aparece en tu captura (REQUIRED)
-        if (isset($res["ssl"]) && $res["ssl"]) {
-            $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false; // Aiven usa certs auto-firmados
+        $connString = $res["cad"];
+        if (getenv("DB_HOST")) {
+            $connString .= ";sslmode=verify-ca";
         }
 
-        return new PDO($res["cad"], $res["user"], $res["pass"], $options);
+        return new PDO($connString, $res["user"], $res["pass"], $options);
     } catch(PDOException $e) {
-        // En producción, es mejor no mostrar el error real, pero puedes loguearlo
-        error_log("Error de conexión: " . $e->getMessage());
         return null;
     }
 }

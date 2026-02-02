@@ -16,8 +16,13 @@ RUN a2enmod rewrite headers
 
 WORKDIR /var/www/html
 
+# Borramos el index por defecto ANTES de copiar tus archivos
+RUN rm -f /var/www/html/index.html
+
+# Copiamos el backend y el frontend
 COPY api/ /var/www/html/
 COPY utils/ /var/www/utils/
+COPY frontend/public_html/ /var/www/html/
 
 COPY dbconfiguration.prod.yml /var/www/dbconfiguration.yml
 
