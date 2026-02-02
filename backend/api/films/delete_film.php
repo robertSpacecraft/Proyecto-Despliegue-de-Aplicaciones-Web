@@ -1,31 +1,35 @@
 <?php
-require_once "../../utils/utils.php";
-require_once "../db/db.php";
+require_once __DIR__ . "/../../utils/utils.php";
+require_once __DIR__ . "/../db/db.php";
 
 try {
-	if ($_SERVER["REQUEST_METHOD"] == "DELETE") {
+    if ($_SERVER["REQUEST_METHOD"] == "DELETE") {
 
-		//Recibir un JSON
-		$jsonBody = file_get_contents('php://input');
-		$jsonBody = json_decode($jsonBody,true);
+        // Decodificamos el cuerpo JSON de la petición
+        $jsonBody = json_decode(file_get_contents('php://input'), true);
 
-		//Control errores falta de un dato
-		if(empty($jsonBody["id"])) {
-			echo getResponse(400,"KO_MISSING","Falta el atributo id");
-			exit;
-		}
+        // Validación del ID
+        if (empty($jsonBody["id"])) {
+            echo getResponse(400, "KO_MISSING", "Falta el atributo id para realizar la eliminación");
+            exit;
+        }
 
-		$resp = deleteFilmDB($jsonBody["id"]);
+        $resp = deleteFilmDB($jsonBody["id"]);
 
-		if(is_null($resp))
-			echo getResponse(500,"KO","Error interno de base de datos");
-		else
-            echo $resp > 0 ? getResponse(200,"OK","Película eliminada correctamente!") : getResponse(500,"KO_ADD","Error al eliminar película");
+        if (is_null($resp)) {
+            echo getResponse(500, "KO", "Error interno de base de datos");
+        } else {
+            if ($resp > 0) {
+                echo getResponse(200, "OK", "Película eliminada correctamente!");
+            } else {
+                echo getResponse(404, "KO_NOT_FOUND", "No se encontró ninguna película con ese ID para eliminar");
+            }
+        }
 
-	} else {
-		echo getResponse(400,"KO_REQUEST","Tipo de petición incorrecta");
-	}
+    } else {
+        echo getResponse(405, "KO_REQUEST", "Tipo de petición incorrecta. Se esperaba DELETE.");
+    }
 
-} catch(Exception $e) {
-	echo getResponse(500,"KO","Error interno");
+} catch (Exception $e) {
+    echo getResponse(500, "KO", "Error interno del servidor");
 }
