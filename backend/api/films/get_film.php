@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../../utils/utils.php";
+require_once __DIR__ . "/../../utils/utils.php"; 
 require_once __DIR__ . "/../db/db.php";
 
 // Cabecera para asegurar que la respuesta sea JSON
