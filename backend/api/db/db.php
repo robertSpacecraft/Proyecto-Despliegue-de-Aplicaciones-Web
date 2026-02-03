@@ -24,20 +24,23 @@ function getDBConnection() {
         $config = getDBConfig();
         if (!$config) return null;
 
+        // Añadimos sslmode=REQUIRED directamente a la cadena de conexión
         $dsn = sprintf("mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4", 
             $config['host'], $config['port'], $config['name']);
+        
+        // Forzamos el uso de SSL para Aiven
+        $dsn .= ";sslmode=REQUIRED";
 
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            // Clave para Aiven: permite SSL sin validar el certificado CA localmente
+            // Desactivamos la verificación del certificado para que conecte sin el archivo .pem
             PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
         ];
 
         return new PDO($dsn, $config['user'], $config['pass'], $options);
     } catch (PDOException $e) {
-        // Registra el error en los logs de Render para depuración
-        error_log("ERROR DB CONNECTION: " . $e->getMessage());
+        error_log("ERROR CONEXIÓN AIVEN: " . $e->getMessage());
         return null;
     }
 }
