@@ -24,22 +24,26 @@ function getDBConnection() {
         $config = getDBConfig();
         if (!$config) return null;
 
-        // Cambiamos sprintf por una cadena más directa y compatible
+        // Construimos el DSN usando los componentes de forma explícita
+        // Algunos drivers de PHP requieren que el host y el puerto estén así para SSL
         $dsn = "mysql:host=" . $config['host'] . ";port=" . $config['port'] . ";dbname=" . $config['name'] . ";charset=utf8mb4";
 
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            // Forzamos SSL pero desactivamos la verificación del CA para no necesitar el archivo .pem
+            // Forzamos SSL
+            PDO::MYSQL_ATTR_SSL_CA       => "", // Algunos sistemas lo necesitan vacío para activar SSL
             PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
         ];
 
-        // IMPORTANTE: Algunos drivers de PHP en Debian necesitan que el SSL se pase así:
-        return new PDO($dsn, $config['user'], $config['pass'], $options);
+        $pdo = new PDO($dsn, $config['user'], $config['pass'], $options);
+        
+        // Verificación extra: si llegamos aquí, la conexión es real
+        return $pdo;
 
     } catch (PDOException $e) {
-        // Esto escribirá el error REAL en los logs de Render (ej: Access Denied)
-        error_log("FALLO PDO: " . $e->getMessage());
+        // ESTO ES LO MÁS IMPORTANTE: Mira los logs de Render después de esto
+        error_log("FALLO CRITICO CONEXION: " . $e->getMessage());
         return null;
     }
 }
