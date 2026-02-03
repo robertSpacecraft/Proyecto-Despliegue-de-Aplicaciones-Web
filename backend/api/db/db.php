@@ -24,27 +24,25 @@ function getDBConnection() {
         $config = getDBConfig();
         if (!$config) return null;
 
-        // Añadimos sslmode=REQUIRED directamente a la cadena de conexión
-        $dsn = sprintf("mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4", 
-            $config['host'], $config['port'], $config['name']);
-        
-        // Forzamos el uso de SSL para Aiven
-        $dsn .= ";sslmode=REQUIRED";
+        // Cambiamos sprintf por una cadena más directa y compatible
+        $dsn = "mysql:host=" . $config['host'] . ";port=" . $config['port'] . ";dbname=" . $config['name'] . ";charset=utf8mb4";
 
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            // Desactivamos la verificación del certificado para que conecte sin el archivo .pem
+            // Forzamos SSL pero desactivamos la verificación del CA para no necesitar el archivo .pem
             PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
         ];
 
+        // IMPORTANTE: Algunos drivers de PHP en Debian necesitan que el SSL se pase así:
         return new PDO($dsn, $config['user'], $config['pass'], $options);
+
     } catch (PDOException $e) {
-        error_log("ERROR CONEXIÓN AIVEN: " . $e->getMessage());
+        // Esto escribirá el error REAL en los logs de Render (ej: Access Denied)
+        error_log("FALLO PDO: " . $e->getMessage());
         return null;
     }
 }
-
 /* ------------ FUNCIONES DE PELÍCULAS --------------- */
 
 /**
