@@ -14,19 +14,23 @@ function loadFilm() {
             if (!response.ok) throw new Error("Error en la respuesta de la API");
             return response.json();
         })
-        .then(data => {
-            if (data.status === "OK") {
-                const film = data.data;
-                // Mapeo de datos a los elementos del HTML
-                document.getElementById("name").innerHTML = film.name;
-                document.getElementById("img").src = film.img;
-                document.getElementById("director").innerHTML = film.director;
-                document.getElementById("classification").innerHTML = film.classification;
-                document.getElementById("plot").innerHTML = film.plot;
-            } else {
-                alert("No se pudo encontrar la película.");
-            }
-        })
+.then(data => {
+    if (data.status === "OK") {
+        // IMPORTANTE: Como getFilmDB devuelve un array (fetchAll), 
+        // debemos coger el primer elemento [0]
+        const film = Array.isArray(data.data) ? data.data[0] : data.data;
+
+        if (film) {
+            document.getElementById("name").innerHTML = film.name || "";
+            document.getElementById("img").src = film.img || "";
+            document.getElementById("director").innerHTML = film.director || "";
+            document.getElementById("classification").innerHTML = film.classification || "";
+            document.getElementById("plot").innerHTML = film.plot || "";
+        }
+    } else {
+        alert("No se pudo encontrar la película.");
+    }
+})
         .catch(error => {
             console.error("Error al cargar la película:", error);
         });
