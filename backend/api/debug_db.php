@@ -2,7 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-require_once __DIR__ . "/../db/db.php";
+require_once __DIR__ . "/db/db.php";
 
 echo "Intentando conectar a: " . getenv("DB_HOST") . "<br>";
 
